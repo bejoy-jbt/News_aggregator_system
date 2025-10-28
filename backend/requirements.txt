@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+pymongo
+requests
+vaderSentiment
+scikit-learn
+numpy
+python-dotenv

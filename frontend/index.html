@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>News Insights Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+  <div class="container mx-auto py-8 px-4">
+    <div class="text-center mb-8">
+      <h1 class="text-5xl font-bold text-gray-800 mb-2">📰 News Insights Dashboard</h1>
+      <p class="text-gray-600 mb-6">Stay informed with real-time news analysis</p>
+      
+      <div class="flex gap-4 justify-center flex-wrap">
+        <button id="fetchBtn" class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105" onclick="fetchData()">
+          <span id="btnText">🔄 Fetch & Analyze News</span>
+        </button>
+        <button id="viewArticlesBtn" class="bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105" onclick="viewAllArticles()">
+          <span>📰 View All Articles</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white p-8 rounded-lg shadow-2xl text-center">
+        <div class="mb-4">
+          <svg class="animate-spin h-12 w-12 text-blue-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </div>
+        <p class="text-xl font-semibold text-gray-800">Fetching latest news...</p>
+        <p class="text-sm text-gray-600 mt-2">This may take a few seconds</p>
+      </div>
+    </div>
+
+    <!-- New Insights Section -->
+    <div class="mb-8">
+      <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">📊 Aggregated Insights</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white p-6 rounded-xl shadow-lg">
+          <h3 class="text-xl font-bold text-gray-800 mb-4">😊 Positive Sentiment Topics</h3>
+          <ul id="positive-topics" class="space-y-2 text-gray-700"></ul>
+        </div>
+        
+        <div class="bg-white p-6 rounded-xl shadow-lg">
+          <h3 class="text-xl font-bold text-gray-800 mb-4">😞 Negative Sentiment Topics</h3>
+          <ul id="negative-topics" class="space-y-2 text-gray-700"></ul>
+        </div>
+      </div>
+      
+      <div class="bg-white p-6 rounded-xl shadow-lg">
+        <h3 class="text-2xl font-bold text-gray-800 mb-4">📅 Today's Sentiment (Bar Chart)</h3>
+        <canvas id="dailyChart" style="max-height: 400px;"></canvas>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+      <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+        <div class="flex items-center mb-4">
+          <div class="p-3 bg-purple-100 rounded-lg mr-3">
+            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+            </svg>
+          </div>
+          <h2 class="text-2xl font-bold text-gray-800">Top Topics</h2>
+        </div>
+        <ul id="topics-list" class="space-y-2 text-gray-700"></ul>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+        <div class="flex items-center mb-4">
+          <div class="p-3 bg-green-100 rounded-lg mr-3">
+            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+          </div>
+          <h2 class="text-2xl font-bold text-gray-800">Sentiment Analysis</h2>
+        </div>
+        <canvas id="sentimentChart"></canvas>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+        <div class="flex items-center mb-4">
+          <div class="p-3 bg-blue-100 rounded-lg mr-3">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
+            </svg>
+          </div>
+          <h2 class="text-2xl font-bold text-gray-800">Source Stats</h2>
+        </div>
+        <canvas id="sourceChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Articles Modal -->
+  <div id="articlesModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto m-4">
+      <div class="sticky top-0 bg-white border-b border-gray-200 p-6 flex justify-between items-center">
+        <h2 class="text-3xl font-bold text-gray-800">📰 All Stored Articles</h2>
+        <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl font-bold">✕</button>
+      </div>
+      <div class="p-6">
+        <div id="articlesContainer" class="space-y-4"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="api-config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
